@@ -28,9 +28,8 @@ Route.on('/').render('welcome')
 // Route.get('/series/:id', 'AnimeController.select_series')
 
 Route.group( () => {
-
     Route.get('anime/:content/:page', 'AnimeController.index')
-    Route.get('anime/popular', 'AnimeController.anime_popular')
+    Route.get('anime/popular/:content/:page', 'AnimeController.anime_popular')
     Route.get('anime/:abjad', 'AnimeController.anime_abjad')
     Route.get('anime/search', 'AnimeController.anime_search')
 }).prefix('api/v1') 

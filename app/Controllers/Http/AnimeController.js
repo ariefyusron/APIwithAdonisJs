@@ -6,19 +6,13 @@ const Route= use('Route')
 const base_url = 'http://localhost:3333/api/v1/'
 
 class AnimeController {
-    // index() {
-    //     return 'this is index'
-    // }
-
-    // detail(req) {
-    //     return req.params.id
-    // }
+    
     async index({ request, response }) {
-
         const limit = parseInt(request.params.content)
         const page = parseInt(request.params.page)
         const offset = (page-1)*limit
         const nextPage = page+1
+        
         const animes = await Database.select('*')
                         .from('animes')
                         .orderBy('title')
@@ -39,11 +33,26 @@ class AnimeController {
         return await Database.raw('select * from animes where title like "'+request.params.abjad+'%"')
     }
 
-    async anime_popular(request, response) {
-        return await Database.select('*')
-        .from('animes')
-        .orderBy('view', 'desc')
-        .limit(20)
+    async anime_popular({request, response}) {
+        const limit = parseInt(request.params.content)
+        const page = parseInt(request.params.page)
+        const offset = (page-1)*limit
+        const nextPage = page+1
+        const year = new Date().getFullYear();
+
+        const animes = await Database.select('*')
+                        .from('animes')
+                        .where({
+                            tahun: year,
+                            status: 'Ongoing'
+                        })
+                        .orderBy('view','desc')
+                        .limit(limit)
+                        .offset(offset)
+        return response.json({
+            url: base_url+'anime/popular/'+limit+'/'+nextPage,
+            data: animes
+        })
     }
 
     async anime_search({request, response}) {
