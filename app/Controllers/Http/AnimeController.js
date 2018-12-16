@@ -1,6 +1,8 @@
 'use strict'
 const Anime = use('App/Models/Anime')
 const Database = use('Database')
+const Query = use('Query')
+const Route= use('Route')
 
 class AnimeController {
     // index() {
@@ -31,9 +33,17 @@ class AnimeController {
         .limit(20)
     }
 
-    async anime_search(request, response) {
-        return await Database
-        .raw('select * from animes where title like "%'+request.params.cari+'%"')
+    async anime_search({request, response}) {
+        const query = new Query(request, {order: 'title', limit: 10, page: request.params.jumlah_page}) 
+        const order = query.order()
+
+        const animes = await Anime.query()
+        .where(query.search([
+            'title'
+        ]))
+        .orderBy(order.column, order.direction)
+        .paginate(query.page(), query.limit())
+        response.json(animes)
     }
 
     async anime_pagination(){
