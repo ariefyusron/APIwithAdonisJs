@@ -13,8 +13,19 @@ class AnimeController {
     //     return req.params.id
     // }
     async index({ request, response }) {
-        let animes = await Anime.all()
-        return response.json(animes)
+        try {
+            let pagination = request.only(['page', 'limit'])
+            const page = parseInt(pagination.page, 1)
+            const limit = parseInt(pagination.limit, 10)
+            let animes = await Anime.query()
+            .from('animes')
+            .paginate(page, limit)
+            return response.json(animes)
+        } catch (error) {
+            throw error
+        }
+        
+        
     }
 
     async detail({ params, res }) {
@@ -34,15 +45,16 @@ class AnimeController {
     }
 
     async anime_search({request, response}) {
-        const query = new Query(request, {order: 'id', limit: 10}) 
-        const order = query.order()
+        animes = await Database.raw('select * from animes where title="One Piece"')
+        // const query = new Query(request, {order: 'id', limit: 10}) 
+        // const order = query.order()
 
-        const animes = await Anime.query()
-        .where(query.search([
-            'title'
-        ]))
-        .orderBy(order.column, order.direction)
-        .paginate(query.page(), query.limit())
+        // const animes = await Anime.query()
+        // .where(query.search([
+        //     'title'
+        // ]))
+        // .orderBy(order.column, order.direction)
+        // .paginate(query.page(), query.limit())
         response.json(animes)
     }
 
