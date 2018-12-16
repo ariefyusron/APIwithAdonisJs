@@ -21,7 +21,7 @@ class AnimeController {
     }
 
     async anime_abjad({request}){
-        return await Database.raw('select * from animes where title like "A%"')
+        return await Database.raw('select * from animes where title like "'+request.params.abjad+'%"')
     }
 
     async anime_popular(request, response) {
