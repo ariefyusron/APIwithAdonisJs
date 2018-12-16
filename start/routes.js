@@ -27,3 +27,6 @@ Route.on('/').render('welcome')
 // Route.get('/series', 'SeriesController.index')
 // Route.get('/series/:id', 'AnimeController.select_series')
 
+Route.group( () => {
+    Route. get('anime/', 'AnimeController.index')
+}).prefix('api/v1') 
