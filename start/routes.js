@@ -31,5 +31,5 @@ Route.group( () => {
     Route.get('anime/', 'AnimeController.index')
     Route.get('anime/popular', 'AnimeController.anime_popular')
     Route.get('anime/:abjad', 'AnimeController.anime_abjad')
-    Route.get('anime?search=:cari&page=:page', 'AnimeController.anime_search')
+    Route.get('anime', 'AnimeController.anime_search')
 }).prefix('api/v1') 
