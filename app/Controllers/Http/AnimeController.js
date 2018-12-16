@@ -44,6 +44,7 @@ class AnimeController {
         .orderBy(order.column, order.direction)
         .paginate(query.page(), query.limit())
         response.json(animes)
+    }
 
     async anime_trending(request, response) {
         return await Database.select('*')
