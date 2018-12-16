@@ -34,16 +34,17 @@ class AnimeController {
     }
 
     async anime_search({request, response}) {
-        const query = new Query(request, {order: 'title', limit: 10, page: request.params.jumlah_page}) 
+        const query = new Query(request, {order: 'title', limit: 10}) 
         const order = query.order()
 
         const animes = await Anime.query()
-        .where(query.search([
-            'title'
-        ]))
+        .where(query.search({
+            title: query.search(),
+        }))
         .orderBy(order.column, order.direction)
         .paginate(query.page(), query.limit())
         response.json(animes)
+    }
 
     async anime_trending(request, response) {
         return await Database.select('*')
