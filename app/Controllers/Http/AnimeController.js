@@ -20,6 +20,7 @@ class AnimeController {
         const nextPage = page+1
         const animes = await Database.select('*')
                         .from('animes')
+                        .orderBy('title')
                         .limit(limit)
                         .offset(offset)
         return response.json({
