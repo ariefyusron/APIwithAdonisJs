@@ -21,7 +21,7 @@ class AnimeController {
     }
 
     async anime_abjad({request}){
-        return await Database.raw('select * from animes where title like "A%"')
+        return await Database.raw('select * from animes where title like "'+request.params.abjad+'%"')
     }
 
     async anime_popular(request, response) {
@@ -29,6 +29,12 @@ class AnimeController {
         .from('animes')
         .orderBy('view', 'desc')
         .limit(20)
+    }
+
+    async anime_search(request, response) {
+        return await Database.select('*')
+        .from('animes')
+        .where('title', 'like', '%'+request.params.cari+'%')
     }
 
     async anime_pagination(){
