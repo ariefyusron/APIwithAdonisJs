@@ -31,6 +31,13 @@ class AnimeController {
         .limit(20)
     }
 
+    async anime_trending(request, response) {
+        return await Database.select('*')
+        .from('animes')
+        .orderBy('view', 'desc')
+        .limit(20)
+    }
+
     async anime_pagination(){
         try {
             
