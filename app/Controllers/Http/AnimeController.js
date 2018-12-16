@@ -38,6 +38,11 @@ class AnimeController {
         .limit(20)
     }
 
+    async anime_search(request, response) {
+        return await Database
+        .raw('select * from animes where title like "%'+request.params.cari+'%"')
+    }
+
     async anime_pagination(){
         try {
             
