@@ -20,6 +20,25 @@ class AnimeController {
         return res.json(anime)
     }
 
+    async anime_abjad({request}){
+        return await Database.raw('select * from animes where title like "A%"')
+    }
+
+    async anime_popular(request, response) {
+        return await Database.select('*')
+        .from('animes')
+        .orderBy('view', 'desc')
+        .limit(20)
+    }
+
+    async anime_pagination(){
+        try {
+            
+        } catch (error) {
+            
+        }
+    }
+
     async store({ request, response }) {
         const title = request.input('title')
         const description = request.input('description')
