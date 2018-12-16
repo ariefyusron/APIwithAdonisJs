@@ -28,7 +28,7 @@ Route.on('/').render('welcome')
 // Route.get('/series/:id', 'AnimeController.select_series')
 
 Route.group( () => {
-    Route.get('anime/', 'AnimeController.index')
+    Route.get('anime/:content/:page', 'AnimeController.index')
     Route.get('anime/popular', 'AnimeController.anime_popular')
     Route.get('anime/:abjad', 'AnimeController.anime_abjad')
     Route.get('anime?search=:cari&page=:jumlah_page', 'AnimeController.anime_search')

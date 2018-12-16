@@ -3,6 +3,7 @@ const Anime = use('App/Models/Anime')
 const Database = use('Database')
 const Query = use('Query')
 const Route= use('Route')
+const base_url = 'http://localhost:3333/api/v1/'
 
 class AnimeController {
     // index() {
@@ -13,8 +14,18 @@ class AnimeController {
     //     return req.params.id
     // }
     async index({ request, response }) {
-        let animes = await Anime.all()
-        return response.json(animes)
+        const limit = parseInt(request.params.content)
+        const page = parseInt(request.params.page)
+        const offset = (page-1)*limit
+        const nextPage = page+1
+        const animes = await Database.select('*')
+                        .from('animes')
+                        .limit(limit)
+                        .offset(offset)
+        return response.json({
+            url: base_url+'anime/'+limit+'/'+nextPage,
+            data: animes
+        })
     }
 
     async detail({ params, res }) {
