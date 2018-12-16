@@ -3,6 +3,7 @@ const Anime = use('App/Models/Anime')
 const Database = use('Database')
 const Query = use('Query')
 const Route= use('Route')
+const base_url = 'http://localhost:3333/api/v1/'
 
 class AnimeController {
     // index() {
@@ -13,19 +14,20 @@ class AnimeController {
     //     return req.params.id
     // }
     async index({ request, response }) {
-        try {
-            let pagination = request.only(['page', 'limit'])
-            const page = parseInt(pagination.page, 1)
-            const limit = parseInt(pagination.limit, 10)
-            let animes = await Anime.query()
-            .from('animes')
-            .paginate(page, limit)
-            return response.json(animes)
-        } catch (error) {
-            throw error
-        }
-        
-        
+
+        const limit = parseInt(request.params.content)
+        const page = parseInt(request.params.page)
+        const offset = (page-1)*limit
+        const nextPage = page+1
+        const animes = await Database.select('*')
+                        .from('animes')
+                        .orderBy('title')
+                        .limit(limit)
+                        .offset(offset)
+        return response.json({
+            url: base_url+'anime/'+limit+'/'+nextPage,
+            data: animes
+        })
     }
 
     async detail({ params, res }) {
