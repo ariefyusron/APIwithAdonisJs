@@ -18,10 +18,15 @@ const Route = use('Route')
 
 Route.on('/').render('welcome')
 
+const anime = Route.group(()=>{
+    Route.get('/', 'AnimeController.index')
+    Route.get('/popular', 'AnimeController.anime_popular')
+    Route.get('/trending', 'AnimeController.anime_trending')
+    Route.get('/alphabet', 'AnimeController.anime_abjad')
+    Route.get('/search', 'AnimeController.anime_search')
+    Route.get('/movie')
+}).prefix('show')
+
 Route.group( () => {
-    Route.get('anime', 'AnimeController.index')
-    Route.get('anime/popular', 'AnimeController.anime_popular')
-    Route.get('anime/trending', 'AnimeController.anime_trending')
-    Route.get('anime/alphabet', 'AnimeController.anime_abjad')
-    Route.get('anime/search', 'AnimeController.anime_search')
+    anime
 }).prefix('api/v1') 

@@ -8,6 +8,9 @@ const base_url = 'http://localhost:3333/api/v1/'
 class AnimeController {
     
     async index({ request, response }) {
+    
+        
+
         //get request
         const get = request.get() 
 
@@ -27,6 +30,8 @@ class AnimeController {
             data: animes
         })
     }
+
+
 
     async detail({ params, res }) {
         const anime = await Anime.find(params.id)
