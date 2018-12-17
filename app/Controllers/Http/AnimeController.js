@@ -35,7 +35,6 @@ class AnimeController {
         const page = parseInt(request.params.page)
         const offset = (page-1)*limit
         const nextPage = page+1
-        const year = new Date().getFullYear();
 
         const animes = await Database.select('*')
                         .from('animes')
@@ -67,17 +66,24 @@ class AnimeController {
     }
 
     async anime_search({request, response}) {
-        animes = await Database.raw('select * from animes where title="One Piece"')
-        // const query = new Query(request, {order: 'id', limit: 10}) 
-        // const order = query.order()
+        const paramsSearch = request.params.search
+        const convertSearch = paramsSearch.split('%20')
+        const search = convertSearch.join(' ')
+        const limit = parseInt(request.params.content)
+        const page = parseInt(request.params.page)
+        const offset = (page-1)*limit
+        const nextPage = page+1
 
-        // const animes = await Anime.query()
-        // .where(query.search([
-        //     'title'
-        // ]))
-        // .orderBy(order.column, order.direction)
-        // .paginate(query.page(), query.limit())
-        response.json(animes)
+        const animes = await Database.select('*')
+                        .from('animes')
+                        .where('title','LIKE','%'+search+'%')
+                        .orderBy('title')
+                        .limit(limit)
+                        .offset(offset)
+        return response.json({
+            url: base_url+'anime/search/'+search+'/'+limit+'/'+nextPage,
+            data: animes
+        })
     }
 
     async anime_trending({request, response}) {
@@ -100,16 +106,6 @@ class AnimeController {
             url: base_url+'anime/trending/'+limit+'/'+nextPage,
             data: animes
         })
-    }
-
-
-
-    async anime_pagination(){
-        try {
-            
-        } catch (error) {
-            
-        }
     }
 
     async store({ request, response }) {
