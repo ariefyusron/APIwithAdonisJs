@@ -2,141 +2,191 @@
 const Anime = use('App/Models/Anime')
 const Database = use('Database')
 const Query = use('Query')
-const Route= use('Route')
-const base_url = 'http://localhost:3333/api/v1/'
+const Route = use('Route')
+const base_url = 'http://192.168.0.37:3333/api'
 
 class AnimeController {
-    
+
     async index({ request, response }) {
-    
-        
 
         //get request
-        const get = request.get() 
+        const get = request.get()
 
         //for pagination
         const limit = parseInt(get.content)
         const page = parseInt(get.page)
-        const offset = (page-1)*limit
-        const nextPage = page+1
-        
-        const animes = await Database.select('*')
-                        .from('animes')
-                        .orderBy('title')
-                        .limit(limit)
-                        .offset(offset)
-        return response.json({
-            url: base_url+'anime?content='+limit+'&page='+nextPage,
-            data: animes
-        })
-    }
+        const offset = (page - 1) * limit
+        const nextPage = page + 1
 
-
-
-    async detail({ params, res }) {
-        const anime = await Anime.find(params.id)
-        return res.json(anime)
-    }
-
-    async anime_abjad({request, response}){
-        //get request
-        const get = request.get() 
-
-        //for pagination
-        const limit = parseInt(get.content)
-        const page = parseInt(get.page)
-        const offset = (page-1)*limit
-        const nextPage = page+1
-
-        //alphabet
-        const alpha = get.alpha
-
-        const animes = await Database.select('*')
-                        .from('animes')
-                        .where('title','LIKE',alpha+'%')
-                        .orderBy('title')
-                        .limit(limit)
-                        .offset(offset)
-        return response.json({
-            url: base_url+'anime/alphabet?alpha='+alpha+'&content='+limit+'&page='+nextPage,
-            data: animes
-        })
-    }
-
-    async anime_popular({request, response}) {
-        //get request
-        const get = request.get() 
-
-        //for pagination
-        const limit = parseInt(get.content)
-        const page = parseInt(get.page)
-        const offset = (page-1)*limit
-        const nextPage = page+1
-
-        const animes = await Database.select('*')
-                        .from('animes')
-                        .orderBy('view','desc')
-                        .limit(limit)
-                        .offset(offset)
-        return response.json({
-            url: base_url+'anime/popular?content='+limit+'&page='+nextPage,
-            data: animes
-        })
-    }
-
-    async anime_search({request, response}) {
-        //get request
-        const get = request.get() 
-
-        //for pagination
-        const limit = parseInt(get.content)
-        const page = parseInt(get.page)
-        const offset = (page-1)*limit
-        const nextPage = page+1
+        // sort
+        const paramsSort = get.sort
 
         //search
         const paramsSearch = get.search
-        const convertSearch = paramsSearch.split('%20')
-        const search = convertSearch.join(' ')
 
-        const animes = await Database.select('*')
-                        .from('animes')
-                        .where('title','LIKE','%'+search+'%')
-                        .orderBy('title')
+
+        if (paramsSearch) {
+            const convertSearch = paramsSearch.split('%20')
+            const search = convertSearch.join(' ')
+            const animes = await Database.select('*')
+                .from('animes')
+                .where('title', 'LIKE', '%' + search + '%')
+                .orderBy('title')
+                .limit(limit)
+                .offset(offset)
+
+            return response.json({
+                url: base_url + '?search=' + search + '&content=' + limit + '&page=' + nextPage,
+                data: animes
+            })
+
+        } else {
+            const year = new Date().getFullYear();
+            let anime = ''
+            switch (paramsSort) {
+                case 'Movie':
+                anime = await Database
+                        .table('animes')
+                        .innerJoin('series', 'animes.series_id', 'series.id')
+                        .where('series.title', 'Movie')
+                        .orderBy('animes.title')
                         .limit(limit)
                         .offset(offset)
-        return response.json({
-            url: base_url+'anime/search?searching='+search+'&content='+limit+'&page='+nextPage,
-            data: animes
-        })
-    }
+                    break
 
-    async anime_trending({request, response}) {
-        //get request
-        const get = request.get() 
+                case 'All':
+                anime = await Database.select('*')
+                        .from('animes')
+                        .orderBy('title', 'asc')
+                        .limit(limit)
+                        .offset(offset)
+                    break
 
-        //for pagination
-        const limit = parseInt(get.content)
-        const page = parseInt(get.page)
-        const offset = (page-1)*limit
-        const nextPage = page+1
+                case 'Popular':
+                anime = await Database.select('*')
+                        .from('animes')
+                        .orderBy('view', 'desc')
+                        .limit(limit)
+                        .offset(offset)
+                    break
 
-        const year = new Date().getFullYear();
-
-        const animes = await Database.select('*')
+                case 'Trending':
+                anime = await Database.select('*')
                         .from('animes')
                         .where({
                             tahun: year,
                             status: 'Ongoing'
                         })
-                        .orderBy('view','desc')
+                        .orderBy('view', 'desc')
                         .limit(limit)
                         .offset(offset)
+                    break
+
+                case 'TopAll':
+                anime = await Database.select('*')
+                        .from('animes')
+                        .orderBy('score', 'desc')
+                        .limit(limit)
+                        .offset(offset)
+                    break
+                default:
+                    return response.json('Error 404. Route not found')
+            }
+
+            return response.json({
+                url: base_url + '?sort=' + paramsSort + '&content=' + limit + '&page=' + nextPage,
+                data: anime
+            })
+        }
+    }
+
+    async anime_detail({ request, response }) {
+        const animeId = request.params.id
+
+        const anime = await Database.select('*')
+            .from('animes')
+            .where('id', animeId)
+
+        const animeVideo = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
+            .from('videos')
+            .innerJoin('animes', 'videos.id_anime', 'animes.id')
+            .where('animes.id', animeId)
+            .orderBy('videos.created_at', 'desc')
+
+        return response.json({ anime, animeVideo })
+    }
+
+    async anime_abjad({ request, response }) {
+        //get request
+        const get = request.get()
+        const alpha = request.params.alphabet
+
+        //for pagination
+        const limit = parseInt(get.content)
+        const page = parseInt(get.page)
+        const offset = (page - 1) * limit
+        const nextPage = page + 1
+
+        const animes = await Database.select('*')
+            .from('animes')
+            .where('title', 'LIKE', alpha + '%')
+            .orderBy('title')
+            .limit(limit)
+            .offset(offset)
+
         return response.json({
-            url: base_url+'anime/trending?content='+limit+'&page='+nextPage,
+            url: base_url + '/' + alpha + '?content=' + limit + '&page=' + nextPage,
             data: animes
         })
     }
+
+    // async anime_popular({ request, response }) {
+    //     //get request
+    //     const get = request.get()
+
+    //     //for pagination
+    //     const limit = parseInt(get.content)
+    //     const page = parseInt(get.page)
+    //     const offset = (page - 1) * limit
+    //     const nextPage = page + 1
+
+    //     const animes = await Database.select('*')
+    //         .from('animes')
+    //         .orderBy('view', 'desc')
+    //         .limit(limit)
+    //         .offset(offset)
+    //     return response.json({
+    //         url: base_url + '/popular?content=' + limit + '&page=' + nextPage,
+    //         data: animes
+    //     })
+    // }
+
+    // async anime_trending({ request, response }) {
+    //     //get request
+    //     const get = request.get()
+
+    //     //for pagination
+    //     const limit = parseInt(get.content)
+    //     const page = parseInt(get.page)
+    //     const offset = (page - 1) * limit
+    //     const nextPage = page + 1
+
+    //     const year = new Date().getFullYear();
+
+    //     const animes = await Database.select('*')
+    //         .from('animes')
+    //         .where({
+    //             tahun: year,
+    //             status: 'Ongoing'
+    //         })
+    //         .orderBy('view', 'desc')
+    //         .limit(limit)
+    //         .offset(offset)
+    //     return response.json({
+    //         url: base_url + '/trending?content=' + limit + '&page=' + nextPage,
+    //         data: animes
+    //     })
+    // }
 
     async store({ request, response }) {
         const title = request.input('title')

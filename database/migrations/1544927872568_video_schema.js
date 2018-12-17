@@ -7,9 +7,9 @@ class VideoSchema extends Schema {
   up () {
     this.create('videos', (table) => {
       table.increments()
-      table.string('episode', 10)
-      table.string('video_embeded', 255)
       table.integer('id_anime')
+      table.string('episode', 10)
+      table.text('video_embeded')
       table.timestamps()
     })
   }

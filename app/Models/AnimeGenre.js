@@ -5,11 +5,11 @@ const Model = use('Model')
 
 class AnimeGenre extends Model {
     anime() {
-        return this.hasOne('./Anime.js', 'id', 'id_anime')
+        return this.hasOne('App/Models/Anime', 'id', 'id_anime')
     }
 
     genre() {
-        return this.hasOne('./Genre.js', 'id', 'id_genre')
+        return this.hasOne('App/Models/Genre', 'id', 'id_genre')
     }
 
     static get table() {

@@ -7,8 +7,8 @@ class AnimeGenreSchema extends Schema {
   up () {
     this.create('anime_genres', (table) => {
       table.increments()
-      table.integer('id_genre')
       table.integer('id_anime')
+      table.integer('id_genre')
       table.timestamps()
     })
   }

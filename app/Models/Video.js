@@ -2,11 +2,10 @@
 
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('Model')
-const Anime = use('App/Models/Anime')
 
 class Video extends Model {
     anime() {
-        return this.belongsTo(Anime, 'id', 'id_anime')
+        return this.belongsTo('App/Models/Anime', 'id', 'id_anime')
     }
     static get table() {
         return 'videos'
