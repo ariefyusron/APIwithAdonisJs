@@ -29,8 +29,24 @@ class AnimeController {
         return res.json(anime)
     }
 
-    async anime_abjad({request}){
-        return await Database.raw('select * from animes where title like "'+request.params.abjad+'%"')
+    async anime_abjad({request, response}){
+        const alpha = request.params.abjad
+        const limit = parseInt(request.params.content)
+        const page = parseInt(request.params.page)
+        const offset = (page-1)*limit
+        const nextPage = page+1
+        const year = new Date().getFullYear();
+
+        const animes = await Database.select('*')
+                        .from('animes')
+                        .where('title','LIKE',alpha+'%')
+                        .orderBy('title')
+                        .limit(limit)
+                        .offset(offset)
+        return response.json({
+            url: base_url+'anime/alphabet/'+alpha+'/'+limit+'/'+nextPage,
+            data: animes
+        })
     }
 
     async anime_popular({request, response}) {
