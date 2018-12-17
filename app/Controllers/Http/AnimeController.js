@@ -54,14 +54,9 @@ class AnimeController {
         const page = parseInt(request.params.page)
         const offset = (page-1)*limit
         const nextPage = page+1
-        const year = new Date().getFullYear();
 
         const animes = await Database.select('*')
                         .from('animes')
-                        .where({
-                            tahun: year,
-                            status: 'Ongoing'
-                        })
                         .orderBy('view','desc')
                         .limit(limit)
                         .offset(offset)
@@ -85,12 +80,26 @@ class AnimeController {
         response.json(animes)
     }
 
-    async anime_trending(request, response) {
-        return await Database.select('*')
-        .from('animes')
+    async anime_trending({request, response}) {
+        const limit = parseInt(request.params.content)
+        const page = parseInt(request.params.page)
+        const offset = (page-1)*limit
+        const nextPage = page+1
+        const year = new Date().getFullYear();
 
-        .orderBy('view', 'desc')
-        .limit(20)
+        const animes = await Database.select('*')
+                        .from('animes')
+                        .where({
+                            tahun: year,
+                            status: 'Ongoing'
+                        })
+                        .orderBy('view','desc')
+                        .limit(limit)
+                        .offset(offset)
+        return response.json({
+            url: base_url+'anime/trending/'+limit+'/'+nextPage,
+            data: animes
+        })
     }
 
 
