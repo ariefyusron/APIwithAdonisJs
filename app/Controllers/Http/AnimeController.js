@@ -8,8 +8,12 @@ const base_url = 'http://localhost:3333/api/v1/'
 class AnimeController {
     
     async index({ request, response }) {
-        const limit = parseInt(request.params.content)
-        const page = parseInt(request.params.page)
+        //get request
+        const get = request.get() 
+
+        //for pagination
+        const limit = parseInt(get.content)
+        const page = parseInt(get.page)
         const offset = (page-1)*limit
         const nextPage = page+1
         
@@ -19,7 +23,7 @@ class AnimeController {
                         .limit(limit)
                         .offset(offset)
         return response.json({
-            url: base_url+'anime/'+limit+'/'+nextPage,
+            url: base_url+'anime?content='+limit+'&page='+nextPage,
             data: animes
         })
     }
@@ -30,11 +34,17 @@ class AnimeController {
     }
 
     async anime_abjad({request, response}){
-        const alpha = request.params.abjad
-        const limit = parseInt(request.params.content)
-        const page = parseInt(request.params.page)
+        //get request
+        const get = request.get() 
+
+        //for pagination
+        const limit = parseInt(get.content)
+        const page = parseInt(get.page)
         const offset = (page-1)*limit
         const nextPage = page+1
+
+        //alphabet
+        const alpha = get.alpha
 
         const animes = await Database.select('*')
                         .from('animes')
@@ -43,14 +53,18 @@ class AnimeController {
                         .limit(limit)
                         .offset(offset)
         return response.json({
-            url: base_url+'anime/alphabet/'+alpha+'/'+limit+'/'+nextPage,
+            url: base_url+'anime/alphabet?alpha='+alpha+'&content='+limit+'&page='+nextPage,
             data: animes
         })
     }
 
     async anime_popular({request, response}) {
-        const limit = parseInt(request.params.content)
-        const page = parseInt(request.params.page)
+        //get request
+        const get = request.get() 
+
+        //for pagination
+        const limit = parseInt(get.content)
+        const page = parseInt(get.page)
         const offset = (page-1)*limit
         const nextPage = page+1
 
@@ -60,19 +74,25 @@ class AnimeController {
                         .limit(limit)
                         .offset(offset)
         return response.json({
-            url: base_url+'anime/popular/'+limit+'/'+nextPage,
+            url: base_url+'anime/popular?content='+limit+'&page='+nextPage,
             data: animes
         })
     }
 
     async anime_search({request, response}) {
-        const paramsSearch = request.params.search
-        const convertSearch = paramsSearch.split('%20')
-        const search = convertSearch.join(' ')
-        const limit = parseInt(request.params.content)
-        const page = parseInt(request.params.page)
+        //get request
+        const get = request.get() 
+
+        //for pagination
+        const limit = parseInt(get.content)
+        const page = parseInt(get.page)
         const offset = (page-1)*limit
         const nextPage = page+1
+
+        //search
+        const paramsSearch = get.search
+        const convertSearch = paramsSearch.split('%20')
+        const search = convertSearch.join(' ')
 
         const animes = await Database.select('*')
                         .from('animes')
@@ -81,16 +101,21 @@ class AnimeController {
                         .limit(limit)
                         .offset(offset)
         return response.json({
-            url: base_url+'anime/search/'+search+'/'+limit+'/'+nextPage,
+            url: base_url+'anime/search?searching='+search+'&content='+limit+'&page='+nextPage,
             data: animes
         })
     }
 
     async anime_trending({request, response}) {
-        const limit = parseInt(request.params.content)
-        const page = parseInt(request.params.page)
+        //get request
+        const get = request.get() 
+
+        //for pagination
+        const limit = parseInt(get.content)
+        const page = parseInt(get.page)
         const offset = (page-1)*limit
         const nextPage = page+1
+
         const year = new Date().getFullYear();
 
         const animes = await Database.select('*')
@@ -103,7 +128,7 @@ class AnimeController {
                         .limit(limit)
                         .offset(offset)
         return response.json({
-            url: base_url+'anime/trending/'+limit+'/'+nextPage,
+            url: base_url+'anime/trending?content='+limit+'&page='+nextPage,
             data: animes
         })
     }
