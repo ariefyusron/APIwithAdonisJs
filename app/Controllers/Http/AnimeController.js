@@ -46,9 +46,9 @@ class AnimeController {
             switch (paramsSort) {
                 case 'Movie':
                 anime = await Database
-                        .table('animes')
-                        .innerJoin('series', 'animes.series_id', 'series.id')
-                        .where('series.title', 'Movie')
+                        .select('*')
+                        .from('animes')
+                        .where('id_series', '5')
                         .orderBy('animes.title')
                         .limit(limit)
                         .offset(offset)
