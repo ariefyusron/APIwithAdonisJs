@@ -3,8 +3,8 @@ const Anime = use('App/Models/Anime')
 const Database = use('Database')
 const Query = use('Query')
 const Route = use('Route')
-// const base_url = 'http://192.168.0.37:3333/api'
-const base_url = 'http://localhost:3333/api'
+const base_url = 'http://192.168.0.37:3333/api'
+// const base_url = 'http://localhost:3333/api'
 
 class AnimeController {
 
