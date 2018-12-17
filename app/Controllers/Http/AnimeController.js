@@ -21,7 +21,7 @@ class AnimeController {
         const prevPage = page - 1
 
         // sort
-        const paramsSort = get.sort.toLowerCase()
+        const paramsSort = get.sort
 
         //search
         const paramsSearch = get.search
@@ -55,7 +55,7 @@ class AnimeController {
             const year = new Date().getFullYear();
             let anime = ''
             let count = ''
-            switch (paramsSort) {
+            switch (paramsSort.toLowerCase()) {
                 case 'movie':
                 anime = await Database
                         .table('animes')
