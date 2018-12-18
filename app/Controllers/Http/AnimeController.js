@@ -121,6 +121,21 @@ class AnimeController {
                         .orderBy('score', 'desc')
                     break
 
+                case 'latest':
+                    anime = await Database.select('animes.*')
+                        .from('videos')
+                        .innerJoin('animes', 'videos.id_anime', 'animes.id')
+                        .orderBy('videos.created_at', 'desc')
+                        .limit(limit)
+                        .offset(offset)
+
+                    count = await Database.select('animes.*')
+                        .from('videos')
+                        .innerJoin('animes', 'videos.id_anime', 'animes.id')
+                        .orderBy('videos.created_at', 'desc')
+
+                    break
+
                 default:
                     return response.json('Error 404. Route not found')
             }
@@ -187,9 +202,16 @@ class AnimeController {
             .innerJoin('series', 'animes.id_series', 'series.id')
             .where('animes.id', animeId)
 
+        const genre = await Database.select('genres.title')
+            .from('anime_genres')
+            .innerJoin('animes', 'anime_genres.id_anime', 'animes.id')
+            .innerJoin('genres', 'anime_genres.id_genre', 'genres.id')
+            .where('animes.id', animeId)
+
         return response.json({
             results: {
                 detailAnime: detail,
+                genres: genre
             }
         })
     }

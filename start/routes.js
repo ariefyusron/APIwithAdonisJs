@@ -19,9 +19,11 @@ const Route = use('Route')
 Route.on('/').render('welcome')
 
 Route.group( () => {
+    Route.post('/auth/register', 'AuthController.register')
+    Route.post('/auth/login', 'AuthController.login')
     Route.get('', 'AnimeController.index')
-    Route.get('/anime/:id', 'AnimeeController.anime_detail')
-    Route.get('/anime/:id/episode', 'AnimeController.anime_video')
+    Route.get('/anime/:id', 'AnimeController.anime_detail').middleware('auth')
+    Route.get('/anime/:id/episode', 'AnimeController.anime_video').middleware('auth')
     Route.get('/:alphabet', 'AnimeController.anime_abjad')
     Route.get('/genre/:genreName', 'AnimeController.anime_genre')
 }).prefix('api') 
