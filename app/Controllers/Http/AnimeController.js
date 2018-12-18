@@ -103,17 +103,17 @@ class AnimeController {
     async anime_detail({ request, response }) {
         const animeId = request.params.id
 
-        const anime = await Database.select('*')
+        const detail = await Database.select('*')
             .from('animes')
             .where('id', animeId)
 
-        const animeVideo = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
+        const episode = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
             .from('videos')
             .innerJoin('animes', 'videos.id_anime', 'animes.id')
             .where('animes.id', animeId)
             .orderBy('videos.created_at', 'desc')
 
-        return response.json({ anime, animeVideo })
+        return response.json({ detail, episode })
     }
 
     async anime_abjad({ request, response }) {
