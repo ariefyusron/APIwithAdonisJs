@@ -4,6 +4,7 @@ const Database = use('Database')
 const Query = use('Query')
 const Route = use('Route')
 const base_url = 'http://192.168.0.37:3333/api'
+// const base_url = 'http://localhost:3333/api'
 
 class AnimeController {
 
@@ -17,6 +18,7 @@ class AnimeController {
         const page = parseInt(get.page)
         const offset = (page - 1) * limit
         const nextPage = page + 1
+        const prevPage = page - 1
 
         // sort
         const paramsSort = get.sort
@@ -34,17 +36,27 @@ class AnimeController {
                 .orderBy('title')
                 .limit(limit)
                 .offset(offset)
+            const count = await Database.select('*')
+                .from('animes')
+                .where('title', 'LIKE', '%' + search + '%')
+                .orderBy('title')
 
             return response.json({
-                url: base_url + '?search=' + search + '&content=' + limit + '&page=' + nextPage,
-                data: animes
+                total: count.length,
+                perPage: limit,
+                page: page,
+                lastPage: Math.ceil(count.length/limit),
+                nextUrl: base_url + '?search=' + search + '&content=' + limit + '&page=' + nextPage,
+                prevUrl: base_url + '?search=' + search + '&content=' + limit + '&page=' + prevPage,
+                results: animes
             })
 
         } else {
             const year = new Date().getFullYear();
             let anime = ''
-            switch (paramsSort) {
-                case 'Movie':
+            let count = ''
+            switch (paramsSort.toLowerCase()) {
+                case 'movie':
                 anime = await Database
                         .select('*')
                         .from('animes')
@@ -52,25 +64,36 @@ class AnimeController {
                         .orderBy('animes.title')
                         .limit(limit)
                         .offset(offset)
+                count = await Database
+                        .table('animes')
+                        .innerJoin('series', 'animes.series_id', 'series.id')
+                        .where('series.title', 'Movie')
+                        .orderBy('animes.title')
                     break
 
-                case 'All':
+                case 'all':
                 anime = await Database.select('*')
                         .from('animes')
                         .orderBy('title', 'asc')
                         .limit(limit)
                         .offset(offset)
+                count = await Database.select('*')
+                        .from('animes')
+                        .orderBy('title', 'asc')
                     break
 
-                case 'Popular':
+                case 'popular':
                 anime = await Database.select('*')
                         .from('animes')
                         .orderBy('view', 'desc')
                         .limit(limit)
                         .offset(offset)
+                count = await Database.select('*')
+                        .from('animes')
+                        .orderBy('view', 'desc')
                     break
 
-                case 'Trending':
+                case 'trending':
                 anime = await Database.select('*')
                         .from('animes')
                         .where({
@@ -80,28 +103,51 @@ class AnimeController {
                         .orderBy('view', 'desc')
                         .limit(limit)
                         .offset(offset)
+                count = await Database.select('*')
+                        .from('animes')
+                        .where({
+                            tahun: year,
+                            status: 'Ongoing'
+                        })
+                        .orderBy('view', 'desc')
                     break
 
-                case 'TopAll':
+                case 'topall':
                 anime = await Database.select('*')
                         .from('animes')
                         .orderBy('score', 'desc')
                         .limit(limit)
                         .offset(offset)
+                count = await Database.select('*')
+                        .from('animes')
+                        .orderBy('score', 'desc')
                     break
                 default:
                     return response.json('Error 404. Route not found')
             }
 
             return response.json({
-                url: base_url + '?sort=' + paramsSort + '&content=' + limit + '&page=' + nextPage,
-                data: anime
+                total: count.length,
+                perPage: limit,
+                page: page,
+                lastPage: Math.ceil(count.length/limit),
+                nextUrl: base_url + '?sort=' + paramsSort + '&content=' + limit + '&page=' + nextPage,
+                prevUrl: base_url + '?sort=' + paramsSort + '&content=' + limit + '&page=' + prevPage,
+                results: anime
             })
         }
     }
 
     async anime_detail({ request, response }) {
         const animeId = request.params.id
+        const get = request.get()
+
+        //for pagination
+        const limit = parseInt(get.content)
+        const page = parseInt(get.page)
+        const offset = (page - 1) * limit
+        const nextPage = page + 1
+        const prevPage = page - 1
 
         const detail = await Database.select('*')
             .from('animes')
@@ -112,8 +158,27 @@ class AnimeController {
             .innerJoin('animes', 'videos.id_anime', 'animes.id')
             .where('animes.id', animeId)
             .orderBy('videos.created_at', 'desc')
+            .limit(limit)
+            .offset(offset)
 
-        return response.json({ detail, episode })
+        const count = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
+            .from('videos')
+            .innerJoin('animes', 'videos.id_anime', 'animes.id')
+            .where('animes.id', animeId)
+            .orderBy('videos.created_at', 'desc')
+
+        return response.json({
+            total: count.length,
+            perPage: limit,
+            page: page,
+            lastPage: Math.ceil(count.length/limit),
+            nextUrl: base_url + '/anime/' + animeId + '?content=' + limit + '&page=' + nextPage,
+            prevUrl: base_url + '/anime/' + animeId + '?content=' + limit + '&page=' + prevPage,
+            results: {
+                detailAnime: anime,
+                listVideo: animeVideo
+            }
+        })
     }
 
     async anime_abjad({ request, response }) {
@@ -126,6 +191,7 @@ class AnimeController {
         const page = parseInt(get.page)
         const offset = (page - 1) * limit
         const nextPage = page + 1
+        const prevPage = page - 1
 
         const animes = await Database.select('*')
             .from('animes')
@@ -133,10 +199,19 @@ class AnimeController {
             .orderBy('title')
             .limit(limit)
             .offset(offset)
+        const count = await Database.select('*')
+            .from('animes')
+            .where('title', 'LIKE', alpha + '%')
+            .orderBy('title')
 
         return response.json({
-            url: base_url + '/' + alpha + '?content=' + limit + '&page=' + nextPage,
-            data: animes
+            total: count.length,
+            perPage: limit,
+            page: page,
+            lastPage: Math.ceil(count.length/limit),
+            nextUrl: base_url + '/' + alpha + '?content=' + limit + '&page=' + nextPage,
+            prevUrl: base_url + '/' + alpha + '?content=' + limit + '&page=' + prevPage,
+            results: animes
         })
     }
 

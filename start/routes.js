@@ -20,9 +20,6 @@ Route.on('/').render('welcome')
 
 Route.group( () => {
     Route.get('', 'AnimeController.index')
-    Route.get('/:id', 'AnimeController.anime_detail')
-    Route.get('/popular', 'AnimeController.anime_popular')
-    Route.get('/trending', 'AnimeController.anime_trending')
+    Route.get('/anime/:id', 'AnimeController.anime_detail')
     Route.get('/:alphabet', 'AnimeController.anime_abjad')
-    Route.post('anime/', 'AnimeController.store')
 }).prefix('api') 
