@@ -45,7 +45,7 @@ class AnimeController {
                 total: count.length,
                 perPage: limit,
                 page: page,
-                lastPage: Math.ceil(count.length/limit),
+                lastPage: Math.ceil(count.length / limit),
                 nextUrl: base_url + '?search=' + search + '&content=' + limit + '&page=' + nextPage,
                 prevUrl: base_url + '?search=' + search + '&content=' + limit + '&page=' + prevPage,
                 results: animes
@@ -57,68 +57,66 @@ class AnimeController {
             let count = ''
             switch (paramsSort.toLowerCase()) {
                 case 'movie':
-                anime = await Database
+                    anime = await Database
                         .select('*')
                         .from('animes')
                         .where('id_series', '5')
                         .orderBy('animes.title')
                         .limit(limit)
                         .offset(offset)
-                count = await Database
-                        .table('animes')
-                        .innerJoin('series', 'animes.series_id', 'series.id')
-                        .where('series.title', 'Movie')
+                    count = await Database
+                        .select('*')
+                        .from('animes')
+                        .where('id_series', '5')
                         .orderBy('animes.title')
                     break
 
                 case 'all':
-                anime = await Database.select('*')
+                    anime = await Database.select('*')
                         .from('animes')
                         .orderBy('title', 'asc')
                         .limit(limit)
                         .offset(offset)
-                count = await Database.select('*')
+                    count = await Database.select('*')
                         .from('animes')
                         .orderBy('title', 'asc')
                     break
 
                 case 'popular':
-                anime = await Database.select('*')
+                    anime = await Database.select('*')
                         .from('animes')
                         .orderBy('view', 'desc')
                         .limit(limit)
                         .offset(offset)
-                count = await Database.select('*')
+                    count = await Database.select('*')
                         .from('animes')
                         .orderBy('view', 'desc')
                     break
 
                 case 'trending':
-                anime = await Database.select('*')
+                    anime = await Database.select('*')
                         .from('animes')
                         .where({
-                            tahun: year,
                             status: 'Ongoing'
                         })
                         .orderBy('view', 'desc')
                         .limit(limit)
                         .offset(offset)
-                count = await Database.select('*')
+                    count = await Database.select('*')
                         .from('animes')
                         .where({
-                            tahun: year,
                             status: 'Ongoing'
                         })
                         .orderBy('view', 'desc')
                     break
 
                 case 'topall':
-                anime = await Database.select('*')
+                    anime = await Database.select('*')
                         .from('animes')
                         .orderBy('score', 'desc')
                         .limit(limit)
                         .offset(offset)
-                count = await Database.select('*')
+                    count = await Database.select('*')
                         .from('animes')
                         .orderBy('score', 'desc')
                     break
@@ -130,7 +128,7 @@ class AnimeController {
                 total: count.length,
                 perPage: limit,
                 page: page,
-                lastPage: Math.ceil(count.length/limit),
+                lastPage: Math.ceil(count.length / limit),
                 nextUrl: base_url + '?sort=' + paramsSort + '&content=' + limit + '&page=' + nextPage,
                 prevUrl: base_url + '?sort=' + paramsSort + '&content=' + limit + '&page=' + prevPage,
                 results: anime
@@ -149,9 +147,10 @@ class AnimeController {
         const nextPage = page + 1
         const prevPage = page - 1
 
-        const detail = await Database.select('*')
+        const detail = await Database.select('animes.*', 'series.title as type')
             .from('animes')
-            .where('id', animeId)
+            .innerJoin('series', 'animes.id_series', 'series.id')
+            .where('animes.id', animeId)
 
         const episode = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
             .from('videos')
@@ -171,12 +170,12 @@ class AnimeController {
             total: count.length,
             perPage: limit,
             page: page,
-            lastPage: Math.ceil(count.length/limit),
+            lastPage: Math.ceil(count.length / limit),
             nextUrl: base_url + '/anime/' + animeId + '?content=' + limit + '&page=' + nextPage,
             prevUrl: base_url + '/anime/' + animeId + '?content=' + limit + '&page=' + prevPage,
             results: {
-                detailAnime: anime,
-                listVideo: animeVideo
+                detailAnime: detail,
+                listVideo: episode
             }
         })
     }
@@ -208,7 +207,7 @@ class AnimeController {
             total: count.length,
             perPage: limit,
             page: page,
-            lastPage: Math.ceil(count.length/limit),
+            lastPage: Math.ceil(count.length / limit),
             nextUrl: base_url + '/' + alpha + '?content=' + limit + '&page=' + nextPage,
             prevUrl: base_url + '/' + alpha + '?content=' + limit + '&page=' + prevPage,
             results: animes
