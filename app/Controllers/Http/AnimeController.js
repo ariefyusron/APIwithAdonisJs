@@ -120,6 +120,7 @@ class AnimeController {
                         .from('animes')
                         .orderBy('score', 'desc')
                     break
+
                 default:
                     return response.json('Error 404. Route not found')
             }
@@ -136,7 +137,64 @@ class AnimeController {
         }
     }
 
+    async anime_genre({ request, response }) {
+        const get = request.get()
+        const genreName = request.params.genreName
+
+        // pagination
+        const limit = parseInt(get.content)
+        const page = parseInt(get.page)
+        const offset = (page - 1) * limit
+        const nextPage = page + 1
+        const prevPage = page - 1
+
+        // sorting genre
+        const anime = await Database
+            // .raw("select * from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.title = ?", [genreName])
+            .select('animes.*')
+            .from('anime_genres')
+            .innerJoin('animes', 'anime_genres.id_anime', 'animes.id')
+            .innerJoin('genres', 'anime_genres.id_genre', 'genres.id')
+            .where('genres.title', genreName)
+            .limit(limit)
+            .offset(offset)
+
+        const count = await Database
+            // .raw("select * from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.title = ?", [genreName])
+            .select('animes.*')
+            .from('anime_genres')
+            .innerJoin('animes', 'anime_genres.id_anime', 'animes.id')
+            .innerJoin('genres', 'anime_genres.id_genre', 'genres.id')
+            .where('genres.title', genreName)
+        return response.json({
+            total: count.length,
+            perPage: limit,
+            page: page,
+            lastPage: Math.ceil(count.length / limit),
+            nextUrl: base_url + '/genre/' + genreName + '?content=' + limit + '&page=' + nextPage,
+            prevUrl: base_url + '/genre/' + genreName + '?content=' + limit + '&page=' + prevPage,
+            result: anime
+        })
+    }
+
     async anime_detail({ request, response }) {
+        const animeId = request.params.id
+        const get = request.get()
+
+
+        const detail = await Database.select('animes.*', 'series.title as type')
+            .from('animes')
+            .innerJoin('series', 'animes.id_series', 'series.id')
+            .where('animes.id', animeId)
+
+        return response.json({
+            results: {
+                detailAnime: detail,
+            }
+        })
+    }
+
+    async anime_video({ request, response }) {
         const animeId = request.params.id
         const get = request.get()
 
@@ -146,11 +204,6 @@ class AnimeController {
         const offset = (page - 1) * limit
         const nextPage = page + 1
         const prevPage = page - 1
-
-        const detail = await Database.select('animes.*', 'series.title as type')
-            .from('animes')
-            .innerJoin('series', 'animes.id_series', 'series.id')
-            .where('animes.id', animeId)
 
         const episode = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
             .from('videos')
@@ -171,10 +224,9 @@ class AnimeController {
             perPage: limit,
             page: page,
             lastPage: Math.ceil(count.length / limit),
-            nextUrl: base_url + '/anime/' + animeId + '?content=' + limit + '&page=' + nextPage,
-            prevUrl: base_url + '/anime/' + animeId + '?content=' + limit + '&page=' + prevPage,
+            nextUrl: base_url + '/anime/' + animeId + '/episode?content=' + limit + '&page=' + nextPage,
+            prevUrl: base_url + '/anime/' + animeId + '/episode?content=' + limit + '&page=' + prevPage,
             results: {
-                detailAnime: detail,
                 listVideo: episode
             }
         })

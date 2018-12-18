@@ -20,6 +20,8 @@ Route.on('/').render('welcome')
 
 Route.group( () => {
     Route.get('', 'AnimeController.index')
-    Route.get('/anime/:id', 'AnimeController.anime_detail')
+    Route.get('/anime/:id', 'AnimeeController.anime_detail')
+    Route.get('/anime/:id/episode', 'AnimeController.anime_video')
     Route.get('/:alphabet', 'AnimeController.anime_abjad')
+    Route.get('/genre/:genreName', 'AnimeController.anime_genre')
 }).prefix('api') 
