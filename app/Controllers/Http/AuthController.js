@@ -19,9 +19,7 @@ class AuthController {
 
         const validation = await validate(register, rules)
         if (validation.fails()){
-            return response.json({
-                'message': 'register error!'
-            })
+            return validation.messages()
         } else {
             const user = new User()
             user.name = register.name
