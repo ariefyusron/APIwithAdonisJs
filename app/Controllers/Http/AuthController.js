@@ -4,6 +4,12 @@ const {validate} = use('Validator')
 
 class AuthController {
     async register({request, auth, response}) {
+        const rules = {
+            email:'required|email|unique:users,email',
+            username: 'required|unique:users,username',
+            name: 'required',
+            password: 'required|min:8'
+        }
         const register = request.only([
             'name',
             'username',
@@ -11,19 +17,26 @@ class AuthController {
             'password'
         ])
 
-        const user = new User()
-        user.name = register.name
-        user.username = register.username
-        user.email = register.email
-        user.password = register.password
+        const validation = await validate(register, rules)
+        if (validation.fails()){
+            return response.json({
+                'message': 'register error!'
+            })
+        } else {
+            const user = new User()
+            user.name = register.name
+            user.username = register.username
+            user.email = register.email
+            user.password = register.password
 
-        await user.save()
+            await user.save()
 
-        const accessToken = await auth.withRefreshToken().generate(user)
-        return response.json({
-            'user': user,
-            'access_token': accessToken
-        })
+            const accessToken = await auth.withRefreshToken().generate(user)
+            return response.json({
+                'user': user,
+                'access_token': accessToken
+            })
+        }
     }
 
     async login({request, auth, response}) {
