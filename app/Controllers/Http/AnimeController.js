@@ -82,6 +82,17 @@ class AnimeController {
                         .orderBy('title', 'asc')
                     break
 
+                case 'random':
+                    anime = await Database.select('*')
+                        .from('animes')
+                        .orderBy(, 'asc')
+                        .limit(limit)
+                        .offset(offset)
+                    count = await Database.select('*')
+                        .from('animes')
+                        .orderBy('title', 'RAND()')
+                    break
+
                 case 'popular':
                     anime = await Database.select('*')
                         .from('animes')

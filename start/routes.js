@@ -23,7 +23,7 @@ Route.group( () => {
     Route.post('/auth/login', 'AuthController.login')
     Route.get('', 'AnimeController.index')
     Route.get('/anime/:id', 'AnimeController.anime_detail').middleware('auth')
-    Route.get('/anime/:id/episode', 'AnimeController.anime_video').middleware('auth')
+    Route.get('/anime/:id/video', 'AnimeController.anime_video').middleware('auth')
     Route.get('/:alphabet', 'AnimeController.anime_abjad')
     Route.get('/genre/:genreName', 'AnimeController.anime_genre')
 }).prefix('api') 
