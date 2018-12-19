@@ -85,7 +85,7 @@ class AnimeController {
                 case 'random':
                     anime = await Database.select('*')
                         .from('animes')
-                        .orderBy(, 'asc')
+                        .orderBy('title', 'RAND()')
                         .limit(limit)
                         .offset(offset)
                     count = await Database.select('*')
