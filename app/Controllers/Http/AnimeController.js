@@ -203,6 +203,16 @@ class AnimeController {
         })
     }
 
+    async genre_list({request, response}) {
+        const genre = await Database.select('*')
+        .from('genres')
+
+        return response.json({
+            data: genre
+        })
+    }
+
+
     async anime_detail({ request, response }) {
         const animeId = request.params.id
         const get = request.get()
@@ -262,6 +272,22 @@ class AnimeController {
             results: {
                 listVideo: episode
             }
+        })
+    }
+
+    async detail_video({request, response}) {
+        
+        const animeId = request.params.animeId
+        const videoId = request.params.videoId
+
+        const episode = await Database.raw('select videos.* from videos join animes on videos.id_anime = animes.id where animes.id='+animeId+' and videos.id ='+videoId)
+            // .select('animes.*','videos.id', 'videos.episode', 'videos.video_embeded')
+            // .from('videos')
+            // .innerJoin('animes', 'videos.id_anime', 'animes.id')
+            // .where('animes.id', animeId, 'and', 'videos.id', videoId)
+
+        return response.json({
+            data:episode
         })
     }
 
