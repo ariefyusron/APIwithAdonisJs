@@ -1,8 +1,7 @@
 'use strict'
 const Anime = use('App/Models/Anime')
 const Database = use('Database')
-const Query = use('Query')
-const Route = use('Route')
+const Redis = use('Redis')
 const base_url = 'http://192.168.0.37:3333/api'
 // const base_url = 'http://localhost:3333/api'
 
@@ -83,14 +82,17 @@ class AnimeController {
                     break
 
                 case 'random':
+
+                    const countrandom = Math.floor(Math.random() * 1000); 
+
                     anime = await Database.select('*')
                         .from('animes')
-                        .orderBy('title', 'RAND()')
+                        .where('id', countrandom)
                         .limit(limit)
                         .offset(offset)
                     count = await Database.select('*')
                         .from('animes')
-                        .orderBy('title', 'RAND()')
+                        .where('id', countrandom)
                     break
 
                 case 'popular':
@@ -252,7 +254,7 @@ class AnimeController {
             .from('videos')
             .innerJoin('animes', 'videos.id_anime', 'animes.id')
             .where('animes.id', animeId)
-            .orderBy('videos.created_at', 'desc')
+            .orderBy('id', 'desc')
             .limit(limit)
             .offset(offset)
 
@@ -260,7 +262,7 @@ class AnimeController {
             .from('videos')
             .innerJoin('animes', 'videos.id_anime', 'animes.id')
             .where('animes.id', animeId)
-            .orderBy('videos.created_at', 'desc')
+            .orderBy('id', 'desc')
 
         return response.json({
             total: count.length,
@@ -323,6 +325,17 @@ class AnimeController {
             prevUrl: base_url + '/' + alpha + '?content=' + limit + '&page=' + prevPage,
             results: animes
         })
+    }
+
+    async cache_anime() {
+        const cachedAnimes = await Redis.get('animes')
+        if(this.cachedAnimes) {
+            return JSON.parse(cachedAnimes)
+        }
+
+        const animes = await Anime.all()
+        await Redis.set('animes', JSON.stringify(animes))
+        return animes
     }
 
     // async anime_popular({ request, response }) {

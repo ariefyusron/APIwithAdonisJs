@@ -16,6 +16,8 @@ class AuthController {
 
         user = await user.save()
 
+        
+
         let accessToken = await auth.generate(user)
         return response.json({"user": user, "access_token": accessToken})
     }
