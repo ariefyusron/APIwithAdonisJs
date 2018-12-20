@@ -51,14 +51,21 @@ class AuthController {
         const validation = await validate(email, rules)
         if (validation.fails()) {
             const user = await User.findBy('username',email)
-            const accessToken = await auth.authenticator('jwtUsername').withRefreshToken().attempt(email,password)
-            return response.json({
-                'user': user,
-                'access_token': accessToken
-            })
+            if (user) {
+                const accessToken = await auth.authenticator('jwt').withRefreshToken().attempt(user.email,password)
+                return response.json({
+                    'user': user,
+                    'access_token': accessToken
+                })
+            } else {
+                return response.status(401).json({
+                    field: 'email',
+                    message: 'Cannot find user with provided email'
+                })
+            }
         } else {
             const user = await User.findBy('email',email)
-            const accessToken = await auth.authenticator('jwtEmail').withRefreshToken().attempt(email,password)
+            const accessToken = await auth.authenticator('jwt').withRefreshToken().attempt(email,password)
             return response.json({
                 'user': user,
                 'access_token': accessToken
