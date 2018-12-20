@@ -217,8 +217,8 @@ class AnimeController {
         const nextPage = page + 1
         const prevPage = page - 1
 
-        const genreAnime = await Database.raw('select animes.* from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.id=' + genrePertama + ' or genres.id=' + genreKedua+ ' limit '+limit+ ' offset '+limit)
-        const count = await Database.raw('select animes.* from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.id=' + genrePertama + ' or genres.id=' + genreKedua)
+        const genreAnime = await Database.raw('select animes.* from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.id=' + genrePertama + ' or genres.id=' + genreKedua+ ' and anime_genres.id_anime = 61 limit '+limit+ ' offset '+limit)
+        const count = await Database.raw('select animes.* from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.id=' + genrePertama + ' or genres.id=' + genreKedua+' and anime_genres.id_anime = 61')
 
         return response.json({
             total: count.length,
