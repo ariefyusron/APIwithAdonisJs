@@ -52,7 +52,7 @@ class AuthController {
         if (validation.fails()) {
             const user = await User.findBy('username',email)
             if (user) {
-                const accessToken = await auth.authenticator('jwt').withRefreshToken().attempt(user.email,password)
+                const accessToken = await auth.withRefreshToken().attempt(user.email,password)
                 return response.json({
                     'user': user,
                     'access_token': accessToken
@@ -65,7 +65,7 @@ class AuthController {
             }
         } else {
             const user = await User.findBy('email',email)
-            const accessToken = await auth.authenticator('jwt').withRefreshToken().attempt(email,password)
+            const accessToken = await auth.withRefreshToken().attempt(email,password)
             return response.json({
                 'user': user,
                 'access_token': accessToken
