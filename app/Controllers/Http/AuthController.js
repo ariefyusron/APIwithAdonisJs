@@ -29,19 +29,12 @@ class AuthController {
 
             await user.save()
 
-<<<<<<< HEAD
-        
-
-        let accessToken = await auth.generate(user)
-        return response.json({"user": user, "access_token": accessToken})
-=======
             const accessToken = await auth.withRefreshToken().generate(user)
             return response.json({
                 'user': user,
                 'access_token': accessToken
             })
         }
->>>>>>> 0bd7634cf1ec269f0436fee7fcf541622003ddcc
     }
 
     async login({request, auth, response}) {
