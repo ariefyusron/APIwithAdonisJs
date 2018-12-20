@@ -1,40 +1,82 @@
 'use strict'
 const User = use('App/Models/User')
+const {validate} = use('Validator')
 
 class AuthController {
     async register({request, auth, response}) {
-        const name = request.input("name")
-        const username = request.input("username")
-        const email = request.input('email')
-        const password = request.input("password")
+        const rules = {
+            email:'required|email|unique:users,email',
+            username: 'required|unique:users,username',
+            name: 'required',
+            password: 'required|min:8'
+        }
+        const register = request.only([
+            'name',
+            'username',
+            'email',
+            'password'
+        ])
 
-        let user = new User()
-        user.name = name
-        user.username = username
-        user.email = email
-        user.password = password
+        const validation = await validate(register, rules)
+        if (validation.fails()){
+            return validation.messages()
+        } else {
+            const user = new User()
+            user.name = register.name
+            user.username = register.username
+            user.email = register.email
+            user.password = register.password
 
-        user = await user.save()
+            await user.save()
 
+<<<<<<< HEAD
         
 
         let accessToken = await auth.generate(user)
         return response.json({"user": user, "access_token": accessToken})
+=======
+            const accessToken = await auth.withRefreshToken().generate(user)
+            return response.json({
+                'user': user,
+                'access_token': accessToken
+            })
+        }
+>>>>>>> 0bd7634cf1ec269f0436fee7fcf541622003ddcc
     }
 
     async login({request, auth, response}) {
-        const username = request.input("username")
-        const password = request.input("password")
-        
-        try {
-            if (await auth.attemp(username, password)) {
-                let user = await User.findBy('username', username)
-                let accessToken = await auth.generate(user)
-                return response.json({"user": user, "access_token": accessToken})
+        const rules = {
+            email:'email'
+        }
+        const login = request.only([
+            'email',
+            'password'
+        ])
+        const email = login.email
+        const password = login.password
+
+        const validation = await validate(email, rules)
+        if (validation.fails()) {
+            const user = await User.findBy('username',email)
+            if (user) {
+                const accessToken = await auth.withRefreshToken().attempt(user.email,password)
+                return response.json({
+                    'user': user,
+                    'access_token': accessToken
+                })
+            } else {
+                return response.status(401).json({
+                    field: 'email',
+                    message: 'Cannot find user with provided email'
+                })
             }
-        } catch (error) {
-            return response.json({message: 'You first need to register!'})
-            
+        } else {
+            const user = await User.findBy('email',email)
+            const accessToken = await auth.withRefreshToken().attempt(email,password)
+            return response.json({
+                'user': user,
+                'access_token': accessToken
+            })
         }
     }
 }

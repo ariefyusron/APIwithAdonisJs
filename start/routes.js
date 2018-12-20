@@ -21,8 +21,13 @@ Route.on('/').render('welcome')
 Route.group( () => {
     Route.post('/auth/register', 'AuthController.register')
     Route.post('/auth/login', 'AuthController.login')
+<<<<<<< HEAD
     Route.get('', 'AnimeController.index')
     Route.get('/cache', 'AnimeController.cache_anime')
+=======
+    Route.get('', 'AnimeController.index').middleware(['auth:jwt'])
+    Route.get('/cache', 'UserController.index')
+>>>>>>> 0bd7634cf1ec269f0436fee7fcf541622003ddcc
     Route.get('/anime/:id', 'AnimeController.anime_detail')
     Route.get('/anime/:id/video', 'AnimeController.anime_video')
     Route.get('/anime/:animeId/video/:videoId', 'AnimeController.detail_video')
