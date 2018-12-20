@@ -51,7 +51,6 @@ class AnimeController {
             })
 
         } else {
-            const year = new Date().getFullYear();
             let anime = ''
             let count = ''
             switch (paramsSort.toLowerCase()) {
@@ -150,7 +149,7 @@ class AnimeController {
                     break
 
                 default:
-                    return response.json('Error 404. Route not found')
+                    return response.status(401).json('Error 404. Route not found')
             }
 
             return response.json({
@@ -217,13 +216,14 @@ class AnimeController {
         const nextPage = page + 1
         const prevPage = page - 1
 
-        const genreAnime = await Database.raw('select animes.* from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.id=' + genrePertama + ' or genres.id=' + genreKedua+ ' limit '+limit+ ' offset '+limit)
-        const count = await Database.raw('select animes.* from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.id=' + genrePertama + ' or genres.id=' + genreKedua)
+        const genreAnime = await Database.raw('SELECT animes.* FROM animes JOIN (SELECT id_anime,COUNT(id_genre) AS genre FROM anime_genres WHERE id_genre='+genrePertama+' OR id_genre='+genreKedua+' GROUP BY id_anime HAVING genre=2) AS a ON animes.id=a.id_anime LIMIT '+limit+' OFFSET '+offset)
+        const count = await Database.raw('SELECT animes.* FROM animes JOIN (SELECT id_anime,COUNT(id_genre) AS genre FROM anime_genres WHERE id_genre='+genrePertama+' OR id_genre='+genreKedua+' GROUP BY id_anime HAVING genre=2) AS a ON animes.id=a.id_anime')
 
         return response.json({
             total: count.length,
             perPage : limit,
             page: page,
+            lastPage: Math.ceil(count.length / limit),
             nextUrl: base_url + '/related?genrePertama='+genrePertama+'&genreKedua='+genreKedua+'&content='+limit+'&page='+nextPage,
             prevUrl: base_url + '/related?genrePertama='+genrePertama+'&genreKedua='+genreKedua+'&content='+limit+'&page='+prevPage,
             result: genreAnime
