@@ -83,7 +83,7 @@ class AnimeController {
 
                 case 'random':
 
-                    const countrandom = Math.floor(Math.random() * 1000); 
+                    const countrandom = Math.floor(Math.random() * 1000);
 
                     anime = await Database.select('*')
                         .from('animes')
@@ -205,14 +205,42 @@ class AnimeController {
         })
     }
 
-    async genre_list({request, response}) {
+
+    async anime_relation({ request, response }) {
+        const get = request.get()
+        const genrePertama = get.genrePertama
+        const genreKedua = get.genreKedua
+
+        const limit = parseInt(get.content)
+        const page = parseInt(get.page)
+        const offset = (page-1) * limit
+        const nextPage = page + 1
+        const prevPage = page - 1
+
+        const genreAnime = await Database.raw('select animes.* from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.id=' + genrePertama + ' or genres.id=' + genreKedua+ ' limit '+limit+ ' offset '+limit)
+        const count = await Database.raw('select animes.* from anime_genres join animes on anime_genres.id_anime = animes.id join genres on anime_genres.id_genre = genres.id where genres.id=' + genrePertama + ' or genres.id=' + genreKedua)
+
+        return response.json({
+            total: count.length,
+            perPage : limit,
+            page: page,
+            nextUrl: base_url + '/related?genrePertama='+genrePertama+'&genreKedua='+genreKedua+'&content='+limit+'&page='+nextPage,
+            prevUrl: base_url + '/related?genrePertama='+genrePertama+'&genreKedua='+genreKedua+'&content='+limit+'&page='+prevPage,
+            result: genreAnime
+        })
+    }
+
+
+    async genre_list({ request, response }) {
         const genre = await Database.select('*')
-        .from('genres')
+            .from('genres')
 
         return response.json({
             data: genre
         })
     }
+
+
 
 
     async anime_detail({ request, response }) {
@@ -277,19 +305,19 @@ class AnimeController {
         })
     }
 
-    async detail_video({request, response}) {
-        
+    async detail_video({ request, response }) {
+
         const animeId = request.params.animeId
         const videoId = request.params.videoId
 
-        const episode = await Database.raw('select videos.* from videos join animes on videos.id_anime = animes.id where animes.id='+animeId+' and videos.id ='+videoId)
-            // .select('animes.*','videos.id', 'videos.episode', 'videos.video_embeded')
-            // .from('videos')
-            // .innerJoin('animes', 'videos.id_anime', 'animes.id')
-            // .where('animes.id', animeId, 'and', 'videos.id', videoId)
+        const episode = await Database.raw('select videos.* from videos join animes on videos.id_anime = animes.id where animes.id=' + animeId + ' and videos.id =' + videoId)
+        // .select('animes.*','videos.id', 'videos.episode', 'videos.video_embeded')
+        // .from('videos')
+        // .innerJoin('animes', 'videos.id_anime', 'animes.id')
+        // .where('animes.id', animeId, 'and', 'videos.id', videoId)
 
         return response.json({
-            data:episode
+            data: episode
         })
     }
 
@@ -329,7 +357,7 @@ class AnimeController {
 
     async cache_anime() {
         const cachedAnimes = await Redis.get('animes')
-        if(this.cachedAnimes) {
+        if (this.cachedAnimes) {
             return JSON.parse(cachedAnimes)
         }
 
