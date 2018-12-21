@@ -241,8 +241,6 @@ class AnimeController {
     }
 
 
-
-
     async anime_detail({ request, response }) {
         const animeId = request.params.id
         const get = request.get()
