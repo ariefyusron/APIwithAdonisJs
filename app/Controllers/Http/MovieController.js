@@ -276,7 +276,7 @@ class AnimeController {
         const nextPage = page + 1
         const prevPage = page - 1
 
-        const episode = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
+        const episode = await Database.select('videos.*')
             .from('videos')
             .innerJoin('animes', 'videos.id_anime', 'animes.id')
             .where('animes.id', animeId)
@@ -284,7 +284,7 @@ class AnimeController {
             .limit(limit)
             .offset(offset)
 
-        const count = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
+        const count = await Database.select('videos.*')
             .from('videos')
             .innerJoin('animes', 'videos.id_anime', 'animes.id')
             .where('animes.id', animeId)
@@ -295,8 +295,8 @@ class AnimeController {
             perPage: limit,
             page: page,
             lastPage: Math.ceil(count.length / limit),
-            nextUrl: base_url + '/anime/' + animeId + '/episode?content=' + limit + '&page=' + nextPage,
-            prevUrl: base_url + '/anime/' + animeId + '/episode?content=' + limit + '&page=' + prevPage,
+            nextUrl: base_url + '/anime/' + animeId + '/video?content=' + limit + '&page=' + nextPage,
+            prevUrl: base_url + '/anime/' + animeId + '/video?content=' + limit + '&page=' + prevPage,
             results: {
                 listVideo: episode
             }
