@@ -310,14 +310,15 @@ class AnimeController {
         const animeId = request.params.animeId
         const videoId = request.params.videoId
 
-        const episode = await Database.raw('select videos.* from videos join animes on videos.id_anime = animes.id where animes.id=' + animeId + ' and videos.id =' + videoId)
-        // .select('animes.*','videos.id', 'videos.episode', 'videos.video_embeded')
-        // .from('videos')
-        // .innerJoin('animes', 'videos.id_anime', 'animes.id')
-        // .where('animes.id', animeId, 'and', 'videos.id', videoId)
+        const episode = await Database//.raw('select videos.* from videos join animes on videos.id_anime = animes.id where animes.id=' + animeId + ' and videos.id =' + videoId)
+        .select('videos.*')
+        .from('videos')
+        .innerJoin('animes', 'videos.id_anime', 'animes.id')
+        .where('animes.id', animeId)
+        .andWhere('videos.id', videoId)
 
         return response.json({
-            data: episode
+            result: episode
         })
     }
 
@@ -365,54 +366,6 @@ class AnimeController {
         await Redis.set('animes', JSON.stringify(animes))
         return animes
     }
-
-    // async anime_popular({ request, response }) {
-    //     //get request
-    //     const get = request.get()
-
-    //     //for pagination
-    //     const limit = parseInt(get.content)
-    //     const page = parseInt(get.page)
-    //     const offset = (page - 1) * limit
-    //     const nextPage = page + 1
-
-    //     const animes = await Database.select('*')
-    //         .from('animes')
-    //         .orderBy('view', 'desc')
-    //         .limit(limit)
-    //         .offset(offset)
-    //     return response.json({
-    //         url: base_url + '/popular?content=' + limit + '&page=' + nextPage,
-    //         data: animes
-    //     })
-    // }
-
-    // async anime_trending({ request, response }) {
-    //     //get request
-    //     const get = request.get()
-
-    //     //for pagination
-    //     const limit = parseInt(get.content)
-    //     const page = parseInt(get.page)
-    //     const offset = (page - 1) * limit
-    //     const nextPage = page + 1
-
-    //     const year = new Date().getFullYear();
-
-    //     const animes = await Database.select('*')
-    //         .from('animes')
-    //         .where({
-    //             tahun: year,
-    //             status: 'Ongoing'
-    //         })
-    //         .orderBy('view', 'desc')
-    //         .limit(limit)
-    //         .offset(offset)
-    //     return response.json({
-    //         url: base_url + '/trending?content=' + limit + '&page=' + nextPage,
-    //         data: animes
-    //     })
-    // }
 
     async store({ request, response }) {
         const title = request.input('title')
