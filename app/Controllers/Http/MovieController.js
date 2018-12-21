@@ -216,8 +216,8 @@ class AnimeController {
         const nextPage = page + 1
         const prevPage = page - 1
 
-        const genreAnime = await Database.raw('SELECT animes.* FROM animes JOIN (SELECT id_anime,COUNT(id_genre) AS genre FROM anime_genres WHERE id_genre='+genrePertama+' OR id_genre='+genreKedua+' GROUP BY id_anime HAVING genre=2) AS a ON animes.id=a.id_anime LIMIT '+limit+' OFFSET '+offset)
-        const count = await Database.raw('SELECT animes.* FROM animes JOIN (SELECT id_anime,COUNT(id_genre) AS genre FROM anime_genres WHERE id_genre='+genrePertama+' OR id_genre='+genreKedua+' GROUP BY id_anime HAVING genre=2) AS a ON animes.id=a.id_anime')
+        const genreAnime = await Database.raw('SELECT animes.* FROM animes JOIN (SELECT id_anime,COUNT(id_genre) AS genre FROM anime_genres JOIN genres on anime_genres.id_genre = genres.id WHERE genres.title="'+genrePertama+'" OR genres.title="'+genreKedua+'" GROUP BY id_anime HAVING genre=2) AS a ON animes.id=a.id_anime LIMIT '+limit+' OFFSET '+offset)
+        const count = await Database.raw('SELECT animes.* FROM animes JOIN (SELECT id_anime,COUNT(id_genre) AS genre FROM anime_genres JOIN genres on anime_genres.id_genre = genres.id WHERE genres.title="'+genrePertama+'" OR genres.title="'+genreKedua+'" GROUP BY id_anime HAVING genre=2) AS a ON animes.id=a.id_anime')
 
         return response.json({
             total: count.length,
