@@ -276,7 +276,7 @@ class AnimeController {
         const nextPage = page + 1
         const prevPage = page - 1
 
-        const episode = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
+        const episode = await Database.select('videos.*, anime.title')
             .from('videos')
             .innerJoin('animes', 'videos.id_anime', 'animes.id')
             .where('animes.id', animeId)
@@ -284,7 +284,7 @@ class AnimeController {
             .limit(limit)
             .offset(offset)
 
-        const count = await Database.select('videos.id', 'videos.episode', 'videos.video_embeded')
+        const count = await Database.select('videos.*, animes.title')
             .from('videos')
             .innerJoin('animes', 'videos.id_anime', 'animes.id')
             .where('animes.id', animeId)
