@@ -165,7 +165,7 @@ class AnimeController {
             }
             let genre = ''
 
-            for(let i = 1; i<anime.length; i++) {
+            for(let i = 0; i<anime.length; i++) {
                     genre = await Database.select('genres.title').from('genres').innerJoin('anime_genres', 'genres.id', 'anime_genres.id_genre').where('anime_genres.id_anime', anime[i].id)
                     let detailAnime = anime[i]
                     let gagah={detailAnime, genre}
