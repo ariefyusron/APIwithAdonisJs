@@ -44,8 +44,8 @@ class AnimeController {
 
                 for(let i = 1; i<animes.length; i++) {
                         genre = await Database.select('genres.title').from('genres').innerJoin('anime_genres', 'genres.id', 'anime_genres.id_genre').where('anime_genres.id_anime', animes[i].id)
-                        let animess = animes[i]
-                        let gagah={animess, genre}
+                        let detailAnime = animes[i]
+                        let gagah={detailAnime, genre}
                         allAnime.push(gagah)
                 }    
 
@@ -167,8 +167,8 @@ class AnimeController {
 
             for(let i = 1; i<anime.length; i++) {
                     genre = await Database.select('genres.title').from('genres').innerJoin('anime_genres', 'genres.id', 'anime_genres.id_genre').where('anime_genres.id_anime', anime[i].id)
-                    let animes = anime[i]
-                    let gagah={animes, genre}
+                    let detailAnime = anime[i]
+                    let gagah={detailAnime, genre}
                     allAnime.push(gagah)
             }
 
@@ -219,8 +219,8 @@ class AnimeController {
 
             for(let i = 1; i<anime.length; i++) {
                     genre = await Database.select('genres.title').from('genres').innerJoin('anime_genres', 'genres.id', 'anime_genres.id_genre').where('anime_genres.id_anime', anime[i].id)
-                    let animes = anime[i]
-                    let gagah={animes, genre}
+                    let detailAnime = anime[i]
+                    let gagah={detailAnime, genre}
                     allAnime.push(gagah)
             }    
             
