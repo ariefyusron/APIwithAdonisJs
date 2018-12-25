@@ -290,6 +290,8 @@ class AnimeController {
             .from('animes')
             .innerJoin('series', 'animes.id_series', 'series.id')
             .where('animes.id', animeId)
+        
+        let detailAnime = detail[0]
 
         const genre = await Database.select('genres.title')
             .from('anime_genres')
@@ -299,7 +301,7 @@ class AnimeController {
 
         return response.json({
             results: {
-                detailAnime: detail,
+                detailAnime: detailAnime,
                 genres: genre
             }
         })
