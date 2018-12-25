@@ -216,7 +216,7 @@ class AnimeController {
             .where('genres.title', genreName)
 
             let genre = ''
-
+            
             for(let i = 1; i<anime.length; i++) {
                     genre = await Database.select('genres.title').from('genres').innerJoin('anime_genres', 'genres.id', 'anime_genres.id_genre').where('anime_genres.id_anime', anime[i].id)
                     let detailAnime = anime[i]
@@ -250,14 +250,16 @@ class AnimeController {
         const genreAnime = await Database.raw('SELECT animes.* FROM animes JOIN (SELECT id_anime,COUNT(id_genre) AS genre FROM anime_genres JOIN genres on anime_genres.id_genre = genres.id WHERE genres.title="'+genrePertama+'" OR genres.title="'+genreKedua+'" GROUP BY id_anime HAVING genre=2) AS a ON animes.id=a.id_anime LIMIT '+limit)
         const count = await Database.raw('SELECT animes.* FROM animes JOIN (SELECT id_anime,COUNT(id_genre) AS genre FROM anime_genres JOIN genres on anime_genres.id_genre = genres.id WHERE genres.title="'+genrePertama+'" OR genres.title="'+genreKedua+'" GROUP BY id_anime HAVING genre=2) AS a ON animes.id=a.id_anime')
 
+        const animeGenre = genreAnime[0]
+        console.log(animeGenre[0].id)
         let genre = ''
         let allAnime = []
-        // for(let i = 1; i<genreAnime.length; i++) {
-        //         genre = await Database.select('genres.title').from('genres').innerJoin('anime_genres', 'genres.id', 'anime_genres.id_genre').where('anime_genres.id_anime', genreAnime.id)
-        //         let animes = genreAnime[i]
-        //         let gagah={animes, genre}
-        //         allAnime.push(gagah)
-        // } 
+        for(let i = 0; i<animeGenre.length; i++) {
+                genre = await Database.select('genres.title').from('genres').innerJoin('anime_genres', 'genres.id', 'anime_genres.id_genre').where('anime_genres.id_anime', animeGenre[i].id)
+                let detailAnime = animeGenre[i]
+                let gagah={detailAnime, genre}
+                allAnime.push(gagah)
+        } 
 
         return response.json({
             total: count.length,
@@ -266,7 +268,7 @@ class AnimeController {
             lastPage: Math.ceil(count.length / limit),
             nextUrl: base_url + '/related?genrePertama='+genrePertama+'&genreKedua='+genreKedua+'&content='+limit+'&page='+nextPage,
             prevUrl: base_url + '/related?genrePertama='+genrePertama+'&genreKedua='+genreKedua+'&content='+limit+'&page='+prevPage,
-            results: genreAnime
+            results: allAnime
         })
     }
 
