@@ -364,6 +364,8 @@ class AnimeController {
         //get request
         const get = request.get()
         const alpha = request.params.alphabet
+        
+        let allAnime=[]
 
         //for pagination
         const limit = parseInt(get.content)
@@ -372,7 +374,7 @@ class AnimeController {
         const nextPage = page + 1
         const prevPage = page - 1
 
-        const animes = await Database.select('*')
+        const anime = await Database.select('*')
             .from('animes')
             .where('title', 'LIKE', alpha + '%')
             .orderBy('title')
@@ -383,6 +385,16 @@ class AnimeController {
             .where('title', 'LIKE', alpha + '%')
             .orderBy('title')
 
+           
+            let genre = ''
+
+            for(let i = 1; i<anime.length; i++) {
+                    genre = await Database.select('genres.title').from('genres').innerJoin('anime_genres', 'genres.id', 'anime_genres.id_genre').where('anime_genres.id_anime', anime[i].id)
+                    let detailAnime = anime[i]
+                    let gagah={detailAnime, genre}
+                    allAnime.push(gagah)
+            }    
+
         return response.json({
             total: count.length,
             perPage: limit,
@@ -390,7 +402,7 @@ class AnimeController {
             lastPage: Math.ceil(count.length / limit),
             nextUrl: base_url + '/' + alpha + '?content=' + limit + '&page=' + nextPage,
             prevUrl: base_url + '/' + alpha + '?content=' + limit + '&page=' + prevPage,
-            results: animes
+            results: allAnime
         })
     }
 
